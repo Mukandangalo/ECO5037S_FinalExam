@@ -3,11 +3,13 @@ from algosdk.v2client import algod
 import json
 import base64
 
+# Initialize the Algod client
 def init_algod():
     algod_address = "https://testnet-api.algonode.cloud"
     algod_token = ""
     return algod.AlgodClient(algod_token, algod_address)
 
+# Wait for a transaction to be confirmed
 def wait_for_confirmation(client, txid):
     try:
         last_round = client.status().get('last-round')
@@ -23,9 +25,10 @@ def wait_for_confirmation(client, txid):
         print(f"Error waiting for confirmation: {e}")
         return None
 
+# Create an Algorand Standard Asset (ASA)
 def create_asa(client, creator_mnemonic):
     try:
-        # Get private key from mnemonic
+        # Get private key using the mnemonic
         private_key = mnemonic.to_private_key(creator_mnemonic)
         creator_account = account.address_from_private_key(private_key)
         
@@ -60,6 +63,7 @@ def create_asa(client, creator_mnemonic):
         print(f"Error creating ASA: {e}")
         return None
 
+# Opt-in to an ASA
 def opt_in_asa(client, account_mnemonic, asset_id):
     try:
         private_key = mnemonic.to_private_key(account_mnemonic)
@@ -81,6 +85,8 @@ def opt_in_asa(client, account_mnemonic, asset_id):
     except Exception as e:
         print(f"Error opting in to ASA: {e}")
 
+
+# Class to manage the liquidity pool
 class LiquidityPool:
     def __init__(self, algo_amount, uctzar_amount, asset_id):
         self.algo_amount = algo_amount
@@ -90,6 +96,7 @@ class LiquidityPool:
         self.total_fees = 0
         self.fee_rate = 0.003
 
+      # Add liquidity to the pool
     def add_liquidity(self, provider_address, algo_amount, uctzar_amount):
         try:
             if self.algo_amount == 0:
@@ -113,6 +120,7 @@ class LiquidityPool:
             print(f"Error adding liquidity: {e}")
             return 0
 
+     # Remove liquidity from the pool
     def remove_liquidity(self, provider_address, lp_tokens):
         try:
             if provider_address not in self.lp_tokens or self.lp_tokens[provider_address] < lp_tokens:
@@ -157,7 +165,8 @@ class LiquidityPool:
         except Exception as e:
             print(f"Error in swap: {e}")
             return 0
-
+            
+         # Swap ALGO for UCTZAR
     def swap_uctzar_to_algo(self, uctzar_amount):
         try:
             k = self.algo_amount * self.uctzar_amount
